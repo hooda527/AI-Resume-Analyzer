@@ -66,6 +66,14 @@ uploaded_file = st.file_uploader(
     type=["pdf"]
 )
 
+st.subheader("💼 Job Description (Optional)")
+
+job_description = st.text_area(
+    "Paste the Job Description here",
+    height=200,
+    placeholder="Paste the company's job description..."
+)
+
 if uploaded_file:
 
     st.success("Resume Uploaded Successfully ✅")
@@ -79,22 +87,28 @@ if uploaded_file:
                 resume = extract_text_from_pdf(uploaded_file)
 
             with st.spinner("🤖 Analyzing with Gemini AI..."):
-                prompt = resume_analysis_prompt(resume)
+                prompt = resume_analysis_prompt(
+                    resume,
+                    job_description
+                )
                 result = analyze_resume(prompt)
 
             st.success("Analysis Completed Successfully 🎉")
 
             st.divider()
 
-            col1, col2, col3 = st.columns(3)
+            col1, col2, col3, col4 = st.columns(4)
 
             with col1:
                 st.metric("ATS Score", f"{result['ats_score']}/100")
 
             with col2:
-                st.metric("Resume", "Analyzed")
+                st.metric("JD Match", f"{result['jd_match_score']}/100")
 
             with col3:
+                st.metric("Resume", "Analyzed")
+
+            with col4:
                 st.metric("AI", "Gemini")
 
             st.divider()
