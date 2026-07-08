@@ -1,5 +1,8 @@
 import streamlit as st
+
 from utils.pdf_reader import extract_text_from_pdf
+from utils.prompts import resume_analysis_prompt
+from utils.gemini import analyze_resume
 
 st.set_page_config(
     page_title="AI Resume Analyzer",
@@ -10,20 +13,22 @@ st.set_page_config(
 st.title("🤖 AI Resume Analyzer")
 
 st.markdown("""
-Upload your resume and receive AI-powered feedback.
+Analyze your resume using **Google Gemini AI**.
 
 ### Features
 
-- ✅ ATS Score
-- ✅ Resume Summary
-- ✅ Strengths
-- ✅ Weaknesses
-- ✅ Missing Skills
-- ✅ Improvement Suggestions
+- 📊 ATS Score
+- 💪 Strengths
+- ⚠ Weaknesses
+- ❌ Missing Skills
+- 🚀 Recommended Projects
+- 📚 Certifications
+- 🎯 Career Suggestions
+- 📝 Resume Improvement Tips
 """)
 
 uploaded_file = st.file_uploader(
-    "📄 Upload Resume (PDF)",
+    "📄 Upload Resume",
     type=["pdf"]
 )
 
@@ -31,22 +36,28 @@ if uploaded_file:
 
     st.success("Resume uploaded successfully!")
 
-    st.write("### Resume Information")
+    st.write(f"**File:** {uploaded_file.name}")
 
-    st.write(f"**Filename:** {uploaded_file.name}")
+    if st.button("🚀 Analyze Resume"):
 
-    if st.button("Extract Resume Text"):
+        try:
 
-        with st.spinner("Reading PDF..."):
+            with st.spinner("📖 Reading Resume..."):
 
-            resume_text = extract_text_from_pdf(uploaded_file)
+                resume_text = extract_text_from_pdf(uploaded_file)
 
-        st.success("Text extracted successfully!")
+            with st.spinner("🤖 Gemini AI is analyzing your resume..."):
 
-        st.subheader("Resume Preview")
+                prompt = resume_analysis_prompt(resume_text)
 
-        st.text_area(
-            "Extracted Text",
-            resume_text,
-            height=350
-        )
+                result = analyze_resume(prompt)
+
+            st.success("Analysis Completed Successfully!")
+
+            st.markdown("---")
+
+            st.markdown(result)
+
+        except Exception as e:
+
+            st.error(f"Error: {e}")
