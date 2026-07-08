@@ -7,25 +7,60 @@ from utils.gemini import analyze_resume
 st.set_page_config(
     page_title="AI Resume Analyzer",
     page_icon="🤖",
-    layout="wide"
+    layout="wide",
 )
+
+# ---------------- CSS ---------------- #
+
+st.markdown("""
+<style>
+
+.main{
+    background-color:#0E1117;
+}
+
+.block-container{
+    padding-top:2rem;
+}
+
+.card{
+    background:#1E1E1E;
+    padding:20px;
+    border-radius:15px;
+    border:1px solid #333333;
+    box-shadow:0px 0px 15px rgba(0,0,0,.3);
+}
+
+.metric{
+    text-align:center;
+    padding:15px;
+    border-radius:10px;
+    background:#262730;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------- Header ---------------- #
 
 st.title("🤖 AI Resume Analyzer")
 
-st.markdown("""
-Analyze your resume using **Google Gemini AI**.
+st.caption("Powered by Google Gemini AI")
 
-### Features
+st.divider()
 
-- 📊 ATS Score
-- 💪 Strengths
-- ⚠ Weaknesses
-- ❌ Missing Skills
-- 🚀 Recommended Projects
-- 📚 Certifications
-- 🎯 Career Suggestions
-- 📝 Resume Improvement Tips
-""")
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("AI Model", "Gemini")
+
+with col2:
+    st.metric("Resume Format", "PDF")
+
+with col3:
+    st.metric("Status", "Ready")
+
+st.divider()
 
 uploaded_file = st.file_uploader(
     "📄 Upload Resume",
@@ -34,30 +69,30 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file:
 
-    st.success("Resume uploaded successfully!")
+    st.success("Resume Uploaded Successfully ✅")
 
-    st.write(f"**File:** {uploaded_file.name}")
+    st.write(uploaded_file.name)
 
-    if st.button("🚀 Analyze Resume"):
+    if st.button("🚀 Analyze Resume", use_container_width=True):
 
         try:
 
-            with st.spinner("📖 Reading Resume..."):
+            with st.spinner("Reading Resume..."):
 
-                resume_text = extract_text_from_pdf(uploaded_file)
+                resume = extract_text_from_pdf(uploaded_file)
 
-            with st.spinner("🤖 Gemini AI is analyzing your resume..."):
+            with st.spinner("Analyzing with Gemini AI..."):
 
-                prompt = resume_analysis_prompt(resume_text)
+                prompt = resume_analysis_prompt(resume)
 
                 result = analyze_resume(prompt)
 
-            st.success("Analysis Completed Successfully!")
+            st.success("Analysis Completed Successfully 🎉")
 
-            st.markdown("---")
+            st.divider()
 
             st.markdown(result)
 
         except Exception as e:
 
-            st.error(f"Error: {e}")
+            st.error(e)
