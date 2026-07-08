@@ -1,4 +1,5 @@
 import os
+import json
 
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -7,7 +8,6 @@ load_dotenv()
 
 
 def load_gemini_model():
-
     api_key = os.getenv("GEMINI_API_KEY")
 
     if not api_key:
@@ -21,9 +21,10 @@ def load_gemini_model():
 
 
 def analyze_resume(prompt):
-
     model = load_gemini_model()
 
     response = model.generate_content(prompt)
 
-    return response.text
+    text = response.text.replace("```json", "").replace("```", "").strip()
+
+    return json.loads(text)

@@ -1,93 +1,40 @@
-def resume_analysis_prompt(resume_text: str) -> str:
+import json
+
+
+def resume_analysis_prompt(resume_text: str):
+
+    schema = {
+        "ats_score": 0,
+        "summary": "",
+        "strengths": [],
+        "weaknesses": [],
+        "missing_skills": [],
+        "recommended_projects": [],
+        "recommended_certifications": [],
+        "career_roles": [],
+        "interview_topics": [],
+        "improvements": [],
+        "final_verdict": ""
+    }
+
     return f"""
-You are an experienced Senior HR Manager, ATS (Applicant Tracking System) Expert,
-Technical Recruiter, Career Coach, and Software Engineering Hiring Manager.
+You are an ATS System, HR Manager and Career Coach.
 
-Your task is to analyze the following resume professionally.
+Analyze the following resume.
 
-Return your response using ONLY Markdown.
+Return ONLY valid JSON.
 
-# Resume
+JSON format:
+
+{json.dumps(schema, indent=2)}
+
+Resume:
 
 {resume_text}
 
----
+Do NOT return markdown.
 
-# Instructions
+Do NOT explain anything.
 
-Analyze the resume carefully.
-
-Provide the following sections:
-
-# 📊 ATS Score
-
-Give an ATS Compatibility Score out of 100.
-
-Explain why.
-
----
-
-# 📝 Professional Summary
-
-Write a short summary about the candidate.
-
----
-
-# 💪 Strengths
-
-List the strongest points.
-
----
-
-# ⚠ Weaknesses
-
-Mention weaknesses that may reduce interview chances.
-
----
-
-# ❌ Missing Skills
-
-List missing technical skills.
-
----
-
-# 🚀 Recommended Projects
-
-Suggest 5 impressive projects based on the resume.
-
----
-
-# 📚 Recommended Certifications
-
-Recommend certifications that improve employability.
-
----
-
-# 🎯 Career Recommendations
-
-Suggest suitable job roles.
-
----
-
-# 🎤 Interview Preparation
-
-Mention important interview topics.
-
----
-
-# 📈 Resume Improvement Suggestions
-
-Give practical suggestions to improve the resume.
-
----
-
-# ⭐ Final Verdict
-
-Provide an overall evaluation.
-
-Keep the response professional, structured, and easy to read.
-
-Do not generate fake information.
-
-If information is missing, clearly mention it.
+Only JSON.
 """
