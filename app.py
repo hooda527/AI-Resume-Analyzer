@@ -1,8 +1,55 @@
-import streamlit as st
+import streamlit as st  # type: ignore[import]
 
 from utils.pdf_reader import extract_text_from_pdf
 from utils.prompts import resume_analysis_prompt
 from utils.gemini import analyze_resume
+
+try:
+    from fpdf import FPDF
+except ImportError:
+    FPDF = None
+
+
+def create_pdf_report(result: dict) -> bytes:
+    if FPDF is None:
+        raise ImportError(
+            "FPDF library is required to generate PDF reports. "
+            "Install it with `pip install fpdf`."
+        )
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
+
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(0, 10, "AI Resume Analysis Report", ln=True, align="C")
+    pdf.ln(5)
+
+    def write_section(title: str, content):
+        pdf.set_font("Arial", "B", 12)
+        pdf.cell(0, 8, title, ln=True)
+        pdf.set_font("Arial", "", 11)
+
+        if isinstance(content, list):
+            for item in content:
+                pdf.multi_cell(0, 8, f"- {item}")
+        else:
+            pdf.multi_cell(0, 8, content or "N/A")
+
+        pdf.ln(3)
+
+    write_section("Summary", result.get("summary", "N/A"))
+    write_section("Strengths", result.get("strengths", []))
+    write_section("Weaknesses", result.get("weaknesses", []))
+    write_section("Missing Skills", result.get("missing_skills", []))
+    write_section("Recommended Projects", result.get("recommended_projects", []))
+    write_section("Recommended Certifications", result.get("recommended_certifications", []))
+    write_section("Career Roles", result.get("career_roles", []))
+    write_section("Interview Topics", result.get("interview_topics", []))
+    write_section("Improvements", result.get("improvements", []))
+    write_section("Final Verdict", result.get("final_verdict", "N/A"))
+
+    return pdf.output(dest="S").encode("latin-1")
 
 st.set_page_config(
     page_title="AI Resume Analyzer",
@@ -91,6 +138,7 @@ if uploaded_file:
                     resume,
                     job_description
                 )
+
                 result = analyze_resume(prompt)
 
             st.success("Analysis Completed Successfully 🎉")
@@ -150,6 +198,21 @@ if uploaded_file:
 
             st.subheader("⭐ Final Verdict")
             st.success(result["final_verdict"])
+
+            st.divider()
+
+            if st.button("📄 Generate PDF Report"):
+
+                pdf_file = create_pdf_report(result)
+
+                with open(pdf_file, "rb") as file:
+
+                    st.download_button(
+                        label="⬇ Download Report",
+                        data=file,
+                        file_name="AI_Resume_Analysis_Report.pdf",
+                        mime="application/pdf"
+                    )
 
         except Exception as e:
             st.error(f"Error: {e}")

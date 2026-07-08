@@ -6,14 +6,24 @@ def extract_text_from_pdf(uploaded_file):
     Extract text from uploaded PDF file.
     """
 
-    reader = PdfReader(uploaded_file)
+    try:
+        reader = PdfReader(uploaded_file)
 
-    text = ""
+        text = ""
 
-    for page in reader.pages:
-        page_text = page.extract_text()
+        for page in reader.pages:
+            page_text = page.extract_text()
 
-        if page_text:
-            text += page_text + "\n"
+            if page_text:
+                text += page_text + "\n"
 
-    return text.strip()
+        if not text.strip():
+            return "No readable text found in this PDF."
+
+        return text.strip()
+
+
+    except Exception as e:
+        raise Exception(
+            f"Unable to read PDF file: {str(e)}"
+        )
